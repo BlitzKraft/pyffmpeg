@@ -3207,7 +3207,7 @@ cdef class Track:
             self.CodecCtx.skip_idct = AVDISCARD_NONKEY
             # deprecated
             # 1-> Skip B-frames, 2-> Skip IDCT/dequant too, 5-> Skip everything except header
-            self.CodecCtx.hurry_up=2  
+            # self.CodecCtx.hurry_up=2  
         if args.has_key("skip_frame"):
             self.CodecCtx.skip_frame=args["skip_frame"]
         if args.has_key("skip_idct"):
@@ -4031,12 +4031,12 @@ cdef class VideoTrack(Track):
         if (b) :
             self.CodecCtx.skip_idct = AVDISCARD_BIDIR
             self.CodecCtx.skip_frame = AVDISCARD_BIDIR
-            self.CodecCtx.hurry_up = 1
+            # self.CodecCtx.hurry_up = 1
             self.hurried_frames = 0
         else:
             self.CodecCtx.skip_idct = AVDISCARD_DEFAULT
             self.CodecCtx.skip_frame = AVDISCARD_DEFAULT
-            self.CodecCtx.hurry_up = 0
+            # self.CodecCtx.hurry_up = 0
 
     ########################################
     ###
@@ -4101,7 +4101,7 @@ cdef class VideoTrack(Track):
 
     def get_fps(self):
         """ return the number of frame per second of the video """
-        return (<float>self.stream.r_frame_rate.num / <float>self.stream.r_frame_rate.den)
+        return (<float>self.stream.avg_frame_rate.num / <float>self.stream.avg_frame_rate.den)
 
     def get_base_freq(self):
         """ return the base frequency of a file """
@@ -4349,7 +4349,7 @@ cdef class FFMpegReader(AFFMpegReader):
         if (oc.oformat==NULL):
             raise Exception, "Unable to find output format for %s\n"
         # Alloc priv_data for format
-        oc.priv_data = av_mallocz(oc.oformat.priv_data_size)
+        oc.priv_data = av_mallocz(sizeof(oc.priv_data))
         #avframe = avcodec_alloc_frame();
 
 
@@ -4735,7 +4735,7 @@ cdef class FFMpegReader(AFFMpegReader):
             raise IOError("Unable to seek: %d" % (ret,))
         if (self.io_context!=NULL):
             # used to have & here
-            avio_seek(self.FormatCtx.pb, self.FormatCtx.data_offset, SEEK_SET)
+            avio_seek(self.FormatCtx.pb, self.FormatCtx.output_ts_offset, SEEK_SET)
         ## ######################################
         ## Flush buffer
         ## ######################################
